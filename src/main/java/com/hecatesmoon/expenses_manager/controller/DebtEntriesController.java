@@ -36,7 +36,7 @@ public class DebtEntriesController {
     }
 
     //User based endpoints
-    @GetMapping("/api/debt/entries") //todo: fix user response in debtentryresponse
+    @GetMapping("/api/debt/entries")
     public List<DebtEntryResponse> getAllEntries(HttpSession session) {
         Long userId = (Long) session.getAttribute("user_id");
         if (userId == null) throw new UnauthorizedException("You need to login first");

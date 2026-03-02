@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 
 import com.hecatesmoon.expenses_manager.model.DebtEntry;
 import com.hecatesmoon.expenses_manager.model.DebtType;
-import com.hecatesmoon.expenses_manager.model.User;
 
 public class DebtEntryResponse {
 
@@ -15,7 +14,7 @@ public class DebtEntryResponse {
     private Boolean isPaid;
     private Boolean isActive;
     private LocalDateTime dateLimit;
-    private User user;
+    private UserResponse user;
 
     public static DebtEntryResponse from (DebtEntry entry){
         DebtEntryResponse response = new DebtEntryResponse();
@@ -25,7 +24,7 @@ public class DebtEntryResponse {
         response.isPaid = entry.getIsPaid();
         response.isActive = entry.getIsActive();
         response.dateLimit = entry.getDateLimit();
-        response.user = entry.getUser(); //todo: use userdto
+        response.user = UserResponse.from(entry.getUser());
         return response;
     }
 
@@ -53,7 +52,7 @@ public class DebtEntryResponse {
         return dateLimit;
     }
 
-    public User getUser() {
+    public UserResponse getUser() {
         return user;
     }
 

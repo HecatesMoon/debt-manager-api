@@ -1,8 +1,5 @@
 package com.hecatesmoon.expenses_manager.dto;
 
-import java.util.List;
-
-import com.hecatesmoon.expenses_manager.model.DebtEntry;
 import com.hecatesmoon.expenses_manager.model.User;
 
 public class UserResponse {
@@ -10,7 +7,6 @@ public class UserResponse {
     private String firstName;
     private String lastName;
     private String email;
-    private List<DebtEntry> debtEntries;
 
     public static UserResponse from (User user){
         UserResponse response = new UserResponse();
@@ -18,7 +14,6 @@ public class UserResponse {
         response.firstName = user.getFirstName();
         response.lastName = user.getLastName();
         response.email = user.getEmail();
-        response.debtEntries = user.getDebtEntries();
         return response;
     }
 
@@ -36,10 +31,6 @@ public class UserResponse {
 
     public String getEmail() {
         return email;
-    }
-
-    public List<DebtEntry> getDebtEntries() {
-        return debtEntries;
     }
 
 }
