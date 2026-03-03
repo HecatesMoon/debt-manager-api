@@ -3,7 +3,11 @@ package com.hecatesmoon.expenses_manager.service;
 import java.math.BigDecimal;
 import java.util.List;
 
+import javax.swing.text.StyledEditorKit.BoldAction;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -11,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.hecatesmoon.expenses_manager.dto.DebtEntryRequest;
 import com.hecatesmoon.expenses_manager.dto.DebtEntryResponse;
 import com.hecatesmoon.expenses_manager.exception.AccessDeniedException;
+import com.hecatesmoon.expenses_manager.exception.BusinessException;
 import com.hecatesmoon.expenses_manager.exception.ResourceNotFoundException;
 import com.hecatesmoon.expenses_manager.model.DebtEntry;
 import com.hecatesmoon.expenses_manager.repository.DebtEntriesRepository;
@@ -33,14 +38,17 @@ public class DebtEntriesService {
         return this.debtRepository.findAll();
     }
 
-    public List<DebtEntryResponse> getAllUserEntries(Long id){
+    public Page<DebtEntryResponse> getAllUserEntries(Long id, Boolean isPaid, Boolean isActive, Pageable pageable){
 
         if (!usersRepository.existsById(id)){
             throw new AccessDeniedException("This user does not exist: " + id);
         }
 
-        List<DebtEntry> list = this.debtRepository.findByUserIdOrderByCreatedAtDesc(id);
-        return list.stream().map(DebtEntryResponse::from).toList();
+        if(pageable.getPageSize() > 50) {
+            throw new BusinessException("Max page size is 50");
+        }
+
+        return this.debtRepository.findByUserIdWithFilters(id, isPaid, isActive, pageable).map(DebtEntryResponse::from);
     }
     
     //todo: manage null or use exception

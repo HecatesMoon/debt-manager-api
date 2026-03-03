@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,6 +27,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 public class DebtEntriesController {
@@ -36,11 +41,15 @@ public class DebtEntriesController {
 
     //User based endpoints
     @GetMapping("/api/debt/entries")
-    public List<DebtEntryResponse> getAllEntries(HttpSession session) {
+    public ResponseEntity<Page<DebtEntryResponse>> getAllEntries(
+        @PageableDefault(size=10,sort="createdAt",direction=Sort.Direction.DESC) 
+        Pageable pageable, @RequestParam(required = false) Boolean isPaid, @RequestParam(required = false) Boolean isActive, HttpSession session) {
+
         Long userId = (Long) session.getAttribute("user_id");
         if (userId == null) throw new UnauthorizedException("You need to login first");
 
-        return this.debtService.getAllUserEntries(userId);
+        Page<DebtEntryResponse> page = this.debtService.getAllUserEntries(userId, isPaid, isActive, pageable);
+        return ResponseEntity.ok(page);
     }
 
     @PostMapping("/api/debt/entries")
