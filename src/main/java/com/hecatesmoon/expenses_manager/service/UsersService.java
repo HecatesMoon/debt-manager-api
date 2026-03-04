@@ -8,6 +8,7 @@ import com.hecatesmoon.expenses_manager.dto.LoginRequest;
 import com.hecatesmoon.expenses_manager.dto.RegisterRequest;
 import com.hecatesmoon.expenses_manager.dto.UserResponse;
 import com.hecatesmoon.expenses_manager.exception.BusinessException;
+import com.hecatesmoon.expenses_manager.exception.ResourceNotFoundException;
 import com.hecatesmoon.expenses_manager.model.User;
 import com.hecatesmoon.expenses_manager.repository.UsersRepository;
 
@@ -23,9 +24,8 @@ public class UsersService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    //todo: manage null or use exception
     public User getUserById (Long id){
-        return this.repository.findById(id).orElse(null);
+        return this.repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User does not exist: " + id));
     }
 
     public UserResponse createUser(RegisterRequest newUser){
