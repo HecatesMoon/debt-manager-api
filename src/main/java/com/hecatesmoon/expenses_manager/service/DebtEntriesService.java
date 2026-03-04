@@ -3,8 +3,6 @@ package com.hecatesmoon.expenses_manager.service;
 import java.math.BigDecimal;
 import java.util.List;
 
-import javax.swing.text.StyledEditorKit.BoldAction;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +38,7 @@ public class DebtEntriesService {
 
     public Page<DebtEntryResponse> getAllUserEntries(Long id, Boolean isPaid, Boolean isActive, Pageable pageable){
 
+        //todo: do I need this?
         if (!usersRepository.existsById(id)){
             throw new AccessDeniedException("This user does not exist: " + id);
         }
