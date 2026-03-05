@@ -51,7 +51,7 @@ public class DebtEntriesService {
         //todo: consider make a standard method for exception
         DebtEntry entry = this.debtRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("This debt entry does not exist: " + id));
 
-        if (entry.getUser().getId() != userId){
+        if (!entry.getUser().getId().equals(userId)){
             throw new AccessDeniedException("You do not have access to this entry.");
         }
 
@@ -70,7 +70,7 @@ public class DebtEntriesService {
         DebtEntry original = debtRepository.findById(id)
                                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Entry not found by id: " + id));
 
-        if (original.getUser().getId() != userId){
+        if (!original.getUser().getId().equals(userId)){
             throw new AccessDeniedException("You do not have access to this entry.");
         }
 
@@ -88,7 +88,7 @@ public class DebtEntriesService {
         //todo: apply DRY
         DebtEntry entry = this.debtRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("This debt entry does not exist: " + id));
 
-        if (entry.getUser().getId() != userId){
+        if (!entry.getUser().getId().equals(userId)){
             throw new AccessDeniedException("You do not have access to this entry.");
         }
 
