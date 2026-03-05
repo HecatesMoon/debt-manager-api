@@ -17,7 +17,7 @@ public class RestExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationException(MethodArgumentNotValidException ex){
 
-        Map<String, Object> response = this.standardFormat();
+        Map<String, Object> response = this.standardFormat(HttpStatus.BAD_REQUEST);
     
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(e -> errors.put(e.getField(), e.getDefaultMessage()));
@@ -29,7 +29,7 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<Map<String, Object>> handleBusinessException(BusinessException ex){
-        Map<String, Object> response = this.standardFormat();
+        Map<String, Object> response = this.standardFormat(HttpStatus.BAD_REQUEST);
         response.put("error","Business : " +  ex.getMessage());
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
@@ -37,7 +37,7 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<Map<String, Object>> handleUnauthorizedException (UnauthorizedException ex){
-        Map<String, Object> response = this.standardFormat();
+        Map<String, Object> response = this.standardFormat(HttpStatus.UNAUTHORIZED);
         response.put("error", "Unauthorized: " + ex.getMessage());
 
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
@@ -45,7 +45,7 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Map<String, Object>> handleAccessDeniedException (AccessDeniedException ex){
-        Map<String, Object> response = this.standardFormat();
+        Map<String, Object> response = this.standardFormat(HttpStatus.FORBIDDEN);
         response.put("error", "Access denied: " + ex.getMessage());
 
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
@@ -53,16 +53,16 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleResourceNotFoundException (ResourceNotFoundException ex){
-        Map<String, Object> response = this.standardFormat();
+        Map<String, Object> response = this.standardFormat(HttpStatus.NOT_FOUND);
         response.put("error", "resource not found: " + ex.getMessage());
 
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
-    private Map<String, Object> standardFormat (){
+    private Map<String, Object> standardFormat (HttpStatus status){
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("timestamp", LocalDateTime.now());
-        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("status", status.value());
         return response;
     }
 }
