@@ -78,6 +78,7 @@ public class DebtEntriesService {
 
         updatedEntry.setId(id);
         updatedEntry.setCreatedAt(original.getCreatedAt());
+        updatedEntry.setUser(original.getUser());
 
         updatedEntry = this.debtRepository.save(updatedEntry);
 
