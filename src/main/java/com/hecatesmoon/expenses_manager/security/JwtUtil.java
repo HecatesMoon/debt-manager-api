@@ -31,7 +31,7 @@ public class JwtUtil {
         Date now = new Date();
 
         return Jwts.builder()
-                   .subject(String.valueOf(id))
+                   .subject(String.valueOf(id)) //todo: consider use email
                    .issuedAt(now)
                    .expiration(new Date(now.getTime() + jwtExpirationMs))
                    .signWith(key)

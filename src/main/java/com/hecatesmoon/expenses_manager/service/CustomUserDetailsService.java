@@ -24,9 +24,9 @@ public class CustomUserDetailsService implements UserDetailsService {
         Long longId = Long.valueOf(id);
         User user = usersRepository.findById(longId)
                                     .orElseThrow(() -> new UsernameNotFoundException("There is no user with this id: " + longId));
-
+        String stringId = String.valueOf(user.getId()); //todo: maybe this was too much
         return new org.springframework.security.core.userdetails.User(
-                    user.getEmail(), 
+                    stringId, //todo: consider use email 
                     user.getPassword(), 
                     Collections.emptyList());
     }
