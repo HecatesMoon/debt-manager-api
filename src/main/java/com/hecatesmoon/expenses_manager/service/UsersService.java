@@ -28,6 +28,10 @@ public class UsersService {
         return this.repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User does not exist: " + id));
     }
 
+    public User getUserByEmail (String email){
+        return this.repository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User with this email does not exist: " + email));
+    }
+
     public UserResponse createUser(RegisterRequest newUser){
 
         newUserValidation(newUser);

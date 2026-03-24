@@ -1,0 +1,60 @@
+package com.hecatesmoon.expenses_manager.controller;
+
+import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.hecatesmoon.expenses_manager.dto.LoginRequest;
+import com.hecatesmoon.expenses_manager.dto.RegisterRequest;
+import com.hecatesmoon.expenses_manager.dto.UserResponse;
+import com.hecatesmoon.expenses_manager.model.User;
+import com.hecatesmoon.expenses_manager.security.JwtUtil;
+import com.hecatesmoon.expenses_manager.service.UsersService;
+
+import jakarta.validation.Valid;
+
+@RestController
+@RequestMapping("/api/auth/test/")
+public class TestAuthController {
+    private final AuthenticationManager authenticationManager;
+    private final UsersService usersService;
+    private final JwtUtil jwtUtil;
+
+    public TestAuthController (AuthenticationManager authenticationManager,
+                               UsersService usersService,
+                               JwtUtil jwtUtil)
+    {
+        this.authenticationManager = authenticationManager;
+        this.usersService = usersService;
+        this.jwtUtil = jwtUtil;
+    }
+
+    @PostMapping("/signin")
+    public ResponseEntity<Map<String, String>> authentication (@Valid @RequestBody LoginRequest user){
+        User realUser = usersService.getUserByEmail(user.getEmail()); 
+        Authentication authentication = authenticationManager.authenticate(
+                                        new UsernamePasswordAuthenticationToken(realUser.getId(), user.getPassword())
+                                        );
+
+        final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String token = jwtUtil.generateToken(Long.valueOf(userDetails.getUsername()));
+        Map<String, String> response = Map.of("token", token);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/signup")
+    public ResponseEntity<UserResponse> register (@Valid @RequestBody RegisterRequest newUser){
+        UserResponse response = usersService.createUser(newUser);
+
+        return ResponseEntity.ok(response);
+    }
+
+}
