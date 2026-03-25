@@ -24,29 +24,16 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/auth/test/")
 public class TestAuthController {
-    private final AuthenticationManager authenticationManager;
     private final UsersService usersService;
-    private final JwtUtil jwtUtil;
 
-    public TestAuthController (AuthenticationManager authenticationManager,
-                               UsersService usersService,
-                               JwtUtil jwtUtil)
+    public TestAuthController (UsersService usersService)
     {
-        this.authenticationManager = authenticationManager;
         this.usersService = usersService;
-        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/signin")
     public ResponseEntity<Map<String, String>> authentication (@Valid @RequestBody LoginRequest user){
-        User realUser = usersService.getUserByEmail(user.getEmail()); 
-        Authentication authentication = authenticationManager.authenticate(
-                                        new UsernamePasswordAuthenticationToken(realUser.getId(), user.getPassword())
-                                        );
-
-        final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String token = jwtUtil.generateToken(Long.valueOf(userDetails.getUsername()));
-        Map<String, String> response = Map.of("token", token);
+        Map<String, String> response = usersService.loginToken(user);
         return ResponseEntity.ok(response);
     }
 

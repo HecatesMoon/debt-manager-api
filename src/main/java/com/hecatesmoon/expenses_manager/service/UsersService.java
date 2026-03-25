@@ -1,6 +1,12 @@
 package com.hecatesmoon.expenses_manager.service;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +17,7 @@ import com.hecatesmoon.expenses_manager.exception.BusinessException;
 import com.hecatesmoon.expenses_manager.exception.ResourceNotFoundException;
 import com.hecatesmoon.expenses_manager.model.User;
 import com.hecatesmoon.expenses_manager.repository.UsersRepository;
+import com.hecatesmoon.expenses_manager.security.JwtUtil;
 
 @Service
 public class UsersService {
@@ -18,10 +25,17 @@ public class UsersService {
     private final UsersRepository repository;
     @Autowired
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
 
-    public UsersService(UsersRepository repository, PasswordEncoder passwordEncoder){
+    public UsersService(UsersRepository repository, 
+                        PasswordEncoder passwordEncoder,
+                        AuthenticationManager authenticationManager,
+                        JwtUtil jwtUtil){
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
     }
 
     public User getUserById (Long id){
@@ -57,6 +71,21 @@ public class UsersService {
         return UserResponse.from(user);
     }
 
+    public Map<String, String> loginToken(LoginRequest login){
+        
+        Long userId = getIdFromEmail(login.getEmail());
+
+        Authentication authentication = authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(userId, login.getPassword()));
+        
+        final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+        String token = jwtUtil.generateToken(Long.valueOf(userDetails.getUsername()));
+
+        Map<String, String> response = Map.of("token", token);
+        return response;
+    }
+
     private void newUserValidation(RegisterRequest user){
         
         if (!user.getPassword().equals(user.getConfirmPassword())){
@@ -65,5 +94,11 @@ public class UsersService {
         if (repository.existsByEmail(user.getEmail().toLowerCase())){
             throw new BusinessException("This email already has an account");
         }
+    }
+
+    private Long getIdFromEmail(String email){
+        User user = repository.findByEmail(email.toLowerCase()).orElseThrow(
+            () -> new ResourceNotFoundException("There is no user with this email: " + email));
+        return user.getId();
     }
 }
