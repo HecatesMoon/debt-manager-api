@@ -22,9 +22,7 @@ import com.hecatesmoon.expenses_manager.security.JwtUtil;
 
 @Service
 public class UsersService {
-    @Autowired
     private final UsersRepository repository;
-    @Autowired
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
@@ -47,50 +45,7 @@ public class UsersService {
         return this.repository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User with this email does not exist: " + email));
     }
 
-    public UserResponse createUser(RegisterRequest newUser){
-
-        newUserValidation(newUser);
-
-        User user = RegisterRequest.toEntity(newUser);
-
-        String hashedPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(hashedPassword);
-
-        user = this.repository.save(user);
-
-        return UserResponse.from(user);
-    }
-
-    public UserResponse loginValidation(LoginRequest login){
-        User user = repository.findByEmail(login.getEmail().toLowerCase())
-                              .orElseThrow(() -> new BusinessException("Email or Password not valid"));
-        
-        if (!passwordEncoder.matches(login.getPassword(), user.getPassword())){
-            throw new BusinessException("Email or Password not valid");
-        }
-
-        return UserResponse.from(user);
-    }
-
-    public Map<String, Object> loginToken(LoginRequest login){
-        
-        User user = getUserFromEmail(login.getEmail());
-
-        Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(user.getId(), login.getPassword()));
-        
-        final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-
-        String token = jwtUtil.generateToken(Long.valueOf(userDetails.getUsername()));
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("user", user);
-        response.put("token", token);
-
-        return response;
-    }
-
-    public Map<String, Object> registerVTwo(RegisterRequest newUser){
+    public Map<String, Object> registerUser(RegisterRequest newUser){
         newUserValidation(newUser);
 
         User user = RegisterRequest.toEntity(newUser);
@@ -106,6 +61,24 @@ public class UsersService {
         response.put("user" ,UserResponse.from(user));
         response.put("token", token);
         
+        return response;
+    }
+
+    public Map<String, Object> login(LoginRequest login){
+        
+        User user = getUserFromEmail(login.getEmail());
+
+        Authentication authentication = authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(user.getId(), login.getPassword()));
+        
+        final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+        String token = jwtUtil.generateToken(Long.valueOf(userDetails.getUsername()));
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("user", user);
+        response.put("token", token);
+
         return response;
     }
 
