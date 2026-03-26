@@ -5,22 +5,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hecatesmoon.expenses_manager.dto.DebtEntryRequest;
 import com.hecatesmoon.expenses_manager.dto.DebtEntryResponse;
 import com.hecatesmoon.expenses_manager.dto.TypeResponse;
-import com.hecatesmoon.expenses_manager.exception.UnauthorizedException;
 import com.hecatesmoon.expenses_manager.model.DebtType;
 import com.hecatesmoon.expenses_manager.service.DebtEntriesService;
 
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -34,7 +33,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RestController
 public class DebtEntriesController {
     
-    @Autowired
     private final DebtEntriesService debtService;
 
     public DebtEntriesController (DebtEntriesService debtService){
@@ -45,28 +43,26 @@ public class DebtEntriesController {
     @GetMapping("/api/debt/entries")
     public ResponseEntity<Page<DebtEntryResponse>> getAllEntries(
         @PageableDefault(size=10,sort="createdAt",direction=Sort.Direction.DESC) 
-        Pageable pageable, @RequestParam(required = false) Boolean isPaid, @RequestParam(required = false) Boolean isActive, HttpSession session) {
-
-        Long userId = (Long) session.getAttribute("user_id");
-        if (userId == null) throw new UnauthorizedException("You need to login first");
+        Pageable pageable, @RequestParam(required = false) Boolean isPaid, @RequestParam(required = false) Boolean isActive, @AuthenticationPrincipal User user) {
+        
+        Long userId = getIdFromPrincipal(user);
 
         Page<DebtEntryResponse> page = this.debtService.getAllUserEntries(userId, isPaid, isActive, pageable);
         return ResponseEntity.ok(page);
     }
 
     @PostMapping("/api/debt/entries")
-    public ResponseEntity<DebtEntryResponse> addDebtEntry(@Valid @RequestBody DebtEntryRequest debtEntry, HttpSession session) {
-        Long userId = (Long) session.getAttribute("user_id");
-        if (userId == null) throw new UnauthorizedException("You need to login first");
+    public ResponseEntity<DebtEntryResponse> addDebtEntry(@Valid @RequestBody DebtEntryRequest debtEntry, @AuthenticationPrincipal User user) {
+        
+        Long userId = getIdFromPrincipal(user);
         
         DebtEntryResponse saved = this.debtService.saveEntry(debtEntry, userId);
         return ResponseEntity.ok(saved);
     }
     
     @GetMapping("/api/debt/entry/{id}")
-    public ResponseEntity<DebtEntryResponse> getEntryById(@PathVariable Long id, HttpSession session) {
-        Long userId = (Long) session.getAttribute("user_id");
-        if (userId == null) throw new UnauthorizedException("You need to login first");
+    public ResponseEntity<DebtEntryResponse> getEntryById(@PathVariable Long id, @AuthenticationPrincipal User user) {
+        Long userId = getIdFromPrincipal(user);
 
         DebtEntryResponse entry = this.debtService.getById(id, userId);
 
@@ -74,9 +70,9 @@ public class DebtEntriesController {
     }
 
     @DeleteMapping("/api/debt/entry/{id}")
-    public ResponseEntity<Void> deleteEntryById(@PathVariable Long id, HttpSession session) {
-        Long userId = (Long) session.getAttribute("user_id");
-        if (userId == null) throw new UnauthorizedException("You need to login first");
+    public ResponseEntity<Void> deleteEntryById(@PathVariable Long id, @AuthenticationPrincipal User user) {
+        
+        Long userId = getIdFromPrincipal(user);
 
         this.debtService.deleteEntry(id, userId);
 
@@ -84,9 +80,9 @@ public class DebtEntriesController {
     }
 
     @PutMapping("/api/debt/entry/{id}")
-    public ResponseEntity<DebtEntryResponse> updateEntry(@Valid @RequestBody DebtEntryRequest debtEntry, @PathVariable Long id, HttpSession session) {
-        Long userId = (Long) session.getAttribute("user_id");
-        if (userId == null) throw new UnauthorizedException("You need to login first");
+    public ResponseEntity<DebtEntryResponse> updateEntry(@Valid @RequestBody DebtEntryRequest debtEntry, @PathVariable Long id, @AuthenticationPrincipal User user) {
+        
+        Long userId = getIdFromPrincipal(user);
 
         DebtEntryResponse updated = debtService.updateEntry(debtEntry, id, userId);
 
@@ -94,9 +90,8 @@ public class DebtEntriesController {
     }
     
     @GetMapping("/api/debt/total-remaining")
-    public ResponseEntity<Map<String,BigDecimal>> getTotalAmount(HttpSession session) {
-        Long userId = (Long) session.getAttribute("user_id");
-        if (userId == null) throw new UnauthorizedException("You need to login first");
+    public ResponseEntity<Map<String,BigDecimal>> getTotalAmount(@AuthenticationPrincipal User user) {
+        Long userId = getIdFromPrincipal(user);
 
         return ResponseEntity.ok(Map.of("total", debtService.getTotalRemainingDebt(userId)));
     }
@@ -112,5 +107,9 @@ public class DebtEntriesController {
         }
 
         return ResponseEntity.ok(types);
+    }
+
+    private Long getIdFromPrincipal(User user){
+        return Long.valueOf(user.getUsername());
     }
 }
