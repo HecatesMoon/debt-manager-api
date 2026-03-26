@@ -103,7 +103,7 @@ public class DebtEntriesController {
 
     //general endpoints
 
-    @GetMapping("/api/debt/types")
+    @GetMapping("/api/public/debt/types")
     public ResponseEntity<List<TypeResponse>> getTypeList() {
         List<TypeResponse> types = new ArrayList<>();
 

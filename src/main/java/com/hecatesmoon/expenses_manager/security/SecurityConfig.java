@@ -50,7 +50,7 @@ public class SecurityConfig {
             .cors(cors -> cors.disable())
             .exceptionHandling(e -> e.authenticationEntryPoint(unauthorizedHandler))
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth  .requestMatchers("/api/auth/**").permitAll()
+            .authorizeHttpRequests(auth -> auth  .requestMatchers("/api/auth/**", "/api/public/**").permitAll()
                                                  .anyRequest().authenticated());
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
