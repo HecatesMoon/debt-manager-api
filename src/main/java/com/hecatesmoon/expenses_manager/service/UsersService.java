@@ -1,5 +1,6 @@
 package com.hecatesmoon.expenses_manager.service;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,6 +87,25 @@ public class UsersService {
         return response;
     }
 
+    public Map<String, Object> registerVTwo(RegisterRequest newUser){
+        newUserValidation(newUser);
+
+        User user = RegisterRequest.toEntity(newUser);
+
+        String hashedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(hashedPassword);
+
+        user = this.repository.save(user);
+
+        String token = getTokenFromEmail(newUser.getEmail());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("user" ,UserResponse.from(user));
+        response.put("token", token);
+        
+        return response;
+    }
+
     private void newUserValidation(RegisterRequest user){
         
         if (!user.getPassword().equals(user.getConfirmPassword())){
@@ -94,6 +114,13 @@ public class UsersService {
         if (repository.existsByEmail(user.getEmail().toLowerCase())){
             throw new BusinessException("This email already has an account");
         }
+    }
+
+    private String getTokenFromEmail(String email){
+
+        Long id = getIdFromEmail(email);
+
+        return jwtUtil.generateToken(id);
     }
 
     private Long getIdFromEmail(String email){

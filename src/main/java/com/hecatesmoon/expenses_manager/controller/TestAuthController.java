@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.hecatesmoon.expenses_manager.dto.LoginRequest;
 import com.hecatesmoon.expenses_manager.dto.RegisterRequest;
-import com.hecatesmoon.expenses_manager.dto.UserResponse;
 import com.hecatesmoon.expenses_manager.service.UsersService;
 
 import jakarta.validation.Valid;
@@ -32,8 +31,8 @@ public class TestAuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<UserResponse> register (@Valid @RequestBody RegisterRequest newUser){
-        UserResponse response = usersService.createUser(newUser);
+    public ResponseEntity<Map<String, Object>> register (@Valid @RequestBody RegisterRequest newUser){
+        Map<String, Object> response = usersService.registerVTwo(newUser);
 
         return ResponseEntity.ok(response);
     }
