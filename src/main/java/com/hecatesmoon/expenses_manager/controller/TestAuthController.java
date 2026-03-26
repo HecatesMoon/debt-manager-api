@@ -25,8 +25,8 @@ public class TestAuthController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<Map<String, String>> authentication (@Valid @RequestBody LoginRequest user){
-        Map<String, String> response = usersService.loginToken(user);
+    public ResponseEntity<Map<String, Object>> authentication (@Valid @RequestBody LoginRequest user){
+        Map<String, Object> response = usersService.loginToken(user);
         return ResponseEntity.ok(response);
     }
 
