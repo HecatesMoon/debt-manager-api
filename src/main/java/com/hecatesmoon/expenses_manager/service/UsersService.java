@@ -65,7 +65,7 @@ public class UsersService {
 
     public Map<String, Object> login(LoginRequest login){
         
-        User user = getUserFromEmail(login.getEmail());
+        User user = getUserByEmail(login.getEmail());
 
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(user.getId(), login.getPassword()));
@@ -93,14 +93,8 @@ public class UsersService {
 
     private String getTokenFromEmail(String email){
 
-        Long id = getUserFromEmail(email).getId();
+        Long id = getUserByEmail(email).getId();
 
         return jwtUtil.generateToken(id);
-    }
-
-    private User getUserFromEmail(String email){
-        User user = repository.findByEmail(email.toLowerCase()).orElseThrow(
-            () -> new ResourceNotFoundException("There is no user with this email: " + email));
-        return user;
     }
 }
