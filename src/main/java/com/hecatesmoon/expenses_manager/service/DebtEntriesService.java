@@ -3,7 +3,6 @@ package com.hecatesmoon.expenses_manager.service;
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -22,9 +21,7 @@ import com.hecatesmoon.expenses_manager.repository.UsersRepository;
 @Service
 public class DebtEntriesService {
 
-    @Autowired
     private final DebtEntriesRepository debtRepository;
-    @Autowired
     private final UsersRepository usersRepository;
 
     public DebtEntriesService(DebtEntriesRepository debtRepository, UsersRepository usersRepository){
