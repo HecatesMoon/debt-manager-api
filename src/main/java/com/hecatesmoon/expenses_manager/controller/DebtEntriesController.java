@@ -17,6 +17,7 @@ import com.hecatesmoon.expenses_manager.dto.DebtEntryRequest;
 import com.hecatesmoon.expenses_manager.dto.DebtEntryResponse;
 import com.hecatesmoon.expenses_manager.dto.TypeResponse;
 import com.hecatesmoon.expenses_manager.model.DebtType;
+import com.hecatesmoon.expenses_manager.security.CustomUserDetails;
 import com.hecatesmoon.expenses_manager.service.DebtEntriesService;
 
 import jakarta.validation.Valid;
@@ -42,26 +43,26 @@ public class DebtEntriesController {
     @GetMapping("/api/debt/entries")
     public ResponseEntity<Page<DebtEntryResponse>> getAllEntries(
         @PageableDefault(size=10,sort="createdAt",direction=Sort.Direction.DESC) 
-        Pageable pageable, @RequestParam(required = false) Boolean isPaid, @RequestParam(required = false) Boolean isActive, @AuthenticationPrincipal User user) {
+        Pageable pageable, @RequestParam(required = false) Boolean isPaid, @RequestParam(required = false) Boolean isActive, @AuthenticationPrincipal CustomUserDetails user) {
         
-        Long userId = getIdFromPrincipal(user);
+        Long userId = user.getId();
 
         Page<DebtEntryResponse> page = this.debtService.getAllUserEntries(userId, isPaid, isActive, pageable);
         return ResponseEntity.ok(page);
     }
 
     @PostMapping("/api/debt/entries")
-    public ResponseEntity<DebtEntryResponse> addDebtEntry(@Valid @RequestBody DebtEntryRequest debtEntry, @AuthenticationPrincipal User user) {
+    public ResponseEntity<DebtEntryResponse> addDebtEntry(@Valid @RequestBody DebtEntryRequest debtEntry, @AuthenticationPrincipal CustomUserDetails user) {
         
-        Long userId = getIdFromPrincipal(user);
+        Long userId = user.getId();
         
         DebtEntryResponse saved = this.debtService.saveEntry(debtEntry, userId);
         return ResponseEntity.ok(saved);
     }
     
     @GetMapping("/api/debt/entry/{id}")
-    public ResponseEntity<DebtEntryResponse> getEntryById(@PathVariable Long id, @AuthenticationPrincipal User user) {
-        Long userId = getIdFromPrincipal(user);
+    public ResponseEntity<DebtEntryResponse> getEntryById(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails user) {
+        Long userId = user.getId();
 
         DebtEntryResponse entry = this.debtService.getById(id, userId);
 
@@ -69,9 +70,9 @@ public class DebtEntriesController {
     }
 
     @DeleteMapping("/api/debt/entry/{id}")
-    public ResponseEntity<Void> deleteEntryById(@PathVariable Long id, @AuthenticationPrincipal User user) {
+    public ResponseEntity<Void> deleteEntryById(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails user) {
         
-        Long userId = getIdFromPrincipal(user);
+        Long userId = user.getId();
 
         this.debtService.deleteEntry(id, userId);
 
@@ -79,9 +80,9 @@ public class DebtEntriesController {
     }
 
     @PutMapping("/api/debt/entry/{id}")
-    public ResponseEntity<DebtEntryResponse> updateEntry(@Valid @RequestBody DebtEntryRequest debtEntry, @PathVariable Long id, @AuthenticationPrincipal User user) {
+    public ResponseEntity<DebtEntryResponse> updateEntry(@Valid @RequestBody DebtEntryRequest debtEntry, @PathVariable Long id, @AuthenticationPrincipal CustomUserDetails user) {
         
-        Long userId = getIdFromPrincipal(user);
+        Long userId = user.getId();
 
         DebtEntryResponse updated = debtService.updateEntry(debtEntry, id, userId);
 
@@ -89,8 +90,8 @@ public class DebtEntriesController {
     }
     
     @GetMapping("/api/debt/total-remaining")
-    public ResponseEntity<Map<String,BigDecimal>> getTotalAmount(@AuthenticationPrincipal User user) {
-        Long userId = getIdFromPrincipal(user);
+    public ResponseEntity<Map<String,BigDecimal>> getTotalAmount(@AuthenticationPrincipal CustomUserDetails user) {
+        Long userId = user.getId();
 
         return ResponseEntity.ok(Map.of("total", debtService.getTotalRemainingDebt(userId)));
     }
@@ -102,9 +103,5 @@ public class DebtEntriesController {
         List<TypeResponse> types = DebtType.getDebtTypesList();
 
         return ResponseEntity.ok(types);
-    }
-
-    private Long getIdFromPrincipal(User user){
-        return Long.valueOf(user.getUsername());
     }
 }
