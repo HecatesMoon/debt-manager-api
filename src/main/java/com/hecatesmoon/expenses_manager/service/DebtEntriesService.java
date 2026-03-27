@@ -2,11 +2,13 @@ package com.hecatesmoon.expenses_manager.service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.hecatesmoon.expenses_manager.dto.DebtEntryRequest;
@@ -63,6 +65,7 @@ public class DebtEntriesService {
         return DebtEntryResponse.from(newEntry);
     }
 
+    @Transactional
     public DebtEntryResponse updateEntry(DebtEntryRequest debtEntry, Long id, Long userId) {
         DebtEntry original = debtRepository.findById(id)
                                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Entry not found by id: " + id));
@@ -71,15 +74,9 @@ public class DebtEntriesService {
             throw new AccessDeniedException("You do not have access to this entry.");
         }
 
-        DebtEntry updatedEntry = DebtEntryRequest.toEntity(debtEntry);
+        updateFields(original, debtEntry);
 
-        updatedEntry.setId(id);
-        updatedEntry.setCreatedAt(original.getCreatedAt());
-        updatedEntry.setUser(original.getUser());
-
-        updatedEntry = this.debtRepository.save(updatedEntry);
-
-        return DebtEntryResponse.from(updatedEntry);
+        return DebtEntryResponse.from(original);
     }
 
     public void deleteEntry(Long id, Long userId) {
@@ -99,6 +96,29 @@ public class DebtEntriesService {
 
     public BigDecimal getTotalRemainingDebt(Long id){
         return debtRepository.sumByUserId(id);
+    }
+
+    private void updateFields (DebtEntry entry, DebtEntryRequest updatedFields){
+        if(!Objects.equals(entry.getIsActive(), updatedFields.getIsActive())){
+            entry.setIsActive(updatedFields.getIsActive());}
+
+        if(!Objects.equals(entry.getIsPaid(), updatedFields.getIsPaid())){
+            entry.setIsPaid(updatedFields.getIsPaid());}
+
+        if(!Objects.equals(entry.getMoneyAmount(), updatedFields.getMoneyAmount())){
+            entry.setMoneyAmount(updatedFields.getMoneyAmount());}
+
+        if(!Objects.equals(entry.getCreditor(), updatedFields.getCreditor())){
+            entry.setCreditor(updatedFields.getCreditor());}
+
+        if(!Objects.equals(entry.getDescription(), updatedFields.getDescription())){
+            entry.setDescription(updatedFields.getDescription());}
+
+        if(!Objects.equals(entry.getType(), updatedFields.getType())){
+            entry.setType(updatedFields.getType());}
+
+        if(!Objects.equals(entry.getDateLimit(), updatedFields.getDateLimit())){
+            entry.setDateLimit(updatedFields.getDateLimit());}
     }
 
 }
