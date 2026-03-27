@@ -73,9 +73,10 @@ public class UsersService {
         final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
         String token = jwtUtil.generateToken(Long.valueOf(userDetails.getUsername()));
+        UserResponse userResponse = UserResponse.from(user);
 
         Map<String, Object> response = new HashMap<>();
-        response.put("user", user);
+        response.put("user", userResponse);
         response.put("token", token);
 
         return response;
