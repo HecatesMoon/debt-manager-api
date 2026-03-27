@@ -30,6 +30,8 @@ public class DebtEntry {
 
     private BigDecimal moneyAmount;
 
+    private String creditor;
+
     @Enumerated(EnumType.STRING)
     private DebtType type;
 
@@ -77,6 +79,14 @@ public class DebtEntry {
 
     public void setMoneyAmount(BigDecimal moneyAmount) {
         this.moneyAmount = moneyAmount;
+    }
+
+    public String getCreditor() {
+        return creditor;
+    }
+
+    public void setCreditor(String creditor) {
+        this.creditor = creditor;
     }
 
     public DebtType getType() {

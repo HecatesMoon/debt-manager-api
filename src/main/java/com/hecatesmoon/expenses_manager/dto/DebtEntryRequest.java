@@ -20,6 +20,9 @@ public class DebtEntryRequest {
     @Positive(message = "Amount has to be greater than zero")
     private BigDecimal moneyAmount;
 
+    @Size(max = 100, message = "You can only write up to 100 characters")
+    private String creditor;
+
     @NotNull(message = "You have to choose a type")
     private DebtType type;
 
@@ -34,6 +37,7 @@ public class DebtEntryRequest {
         DebtEntry entry = new DebtEntry();
         entry.setDescription(request.description);
         entry.setMoneyAmount(request.moneyAmount);
+        entry.setCreditor(request.creditor);
         entry.setType(request.type);
         entry.setIsPaid(request.isPaid);
         entry.setIsActive(request.isActive);
@@ -47,6 +51,10 @@ public class DebtEntryRequest {
 
     public BigDecimal getMoneyAmount() {
         return moneyAmount;
+    }
+
+    public String getCreditor(){
+        return creditor;
     }
 
     public DebtType getType() {

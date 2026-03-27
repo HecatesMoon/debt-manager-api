@@ -11,6 +11,7 @@ public class DebtEntryResponse {
     private Long id;
     private String description;
     private BigDecimal moneyAmount;
+    private String creditor;
     private DebtType type;
     private Boolean isPaid;
     private Boolean isActive;
@@ -22,6 +23,7 @@ public class DebtEntryResponse {
         response.id = entry.getId();
         response.description = entry.getDescription();
         response.moneyAmount = entry.getMoneyAmount();
+        response.creditor = entry.getCreditor();
         response.type = entry.getType();
         response.isPaid = entry.getIsPaid();
         response.isActive = entry.getIsActive();
@@ -40,6 +42,10 @@ public class DebtEntryResponse {
 
     public BigDecimal getMoneyAmount() {
         return moneyAmount;
+    }
+
+    public String getCreditor(){
+        return creditor;
     }
 
     public DebtType getType() {
