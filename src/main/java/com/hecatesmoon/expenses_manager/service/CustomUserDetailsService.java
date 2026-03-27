@@ -2,6 +2,7 @@ package com.hecatesmoon.expenses_manager.service;
 
 import java.util.Collections;
 
+import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.hecatesmoon.expenses_manager.model.User;
 import com.hecatesmoon.expenses_manager.repository.UsersRepository;
+import com.hecatesmoon.expenses_manager.security.CustomUserDetails;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -25,9 +27,11 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = usersRepository.findById(longId)
                                     .orElseThrow(() -> new UsernameNotFoundException("There is no user with this id: " + longId));
         String stringId = String.valueOf(user.getId()); //todo: maybe this was too much
-        return new org.springframework.security.core.userdetails.User(
+        return new CustomUserDetails(
                     stringId, //todo: consider use email 
                     user.getPassword(), 
-                    Collections.emptyList());
+                    Collections.emptyList(),
+                    user.getId(),
+                    user.getEmail());
     }
 }
