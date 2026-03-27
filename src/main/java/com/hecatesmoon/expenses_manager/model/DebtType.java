@@ -1,5 +1,10 @@
 package com.hecatesmoon.expenses_manager.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.hecatesmoon.expenses_manager.dto.TypeResponse;
+
 public enum DebtType {
     BANK("Bank loans and financial institution debts"),
     PERSONAL("Loans from individuals (non-family/friends)"),
@@ -23,5 +28,14 @@ public enum DebtType {
 
     public String getDescription(){
         return this.description;
+    }
+
+    public static List<TypeResponse> getDebtTypesList(){
+         List<TypeResponse> types = new ArrayList<>();
+
+        for (DebtType type : DebtType.values()){
+            types.add(TypeResponse.from(type));
+        }
+        return types;
     }
 }

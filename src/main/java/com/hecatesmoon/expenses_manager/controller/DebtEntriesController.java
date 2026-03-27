@@ -100,11 +100,7 @@ public class DebtEntriesController {
 
     @GetMapping("/api/public/debt/types")
     public ResponseEntity<List<TypeResponse>> getTypeList() {
-        List<TypeResponse> types = new ArrayList<>();
-
-        for (DebtType type : DebtType.values()){
-            types.add(TypeResponse.from(type));
-        }
+        List<TypeResponse> types = DebtType.getDebtTypesList();
 
         return ResponseEntity.ok(types);
     }
